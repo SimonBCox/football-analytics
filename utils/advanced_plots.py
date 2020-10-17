@@ -9,19 +9,26 @@ import seaborn as sns
 
 from math import pi
 from utils.basic_plots import create_pitch
+from utils.dataframe_mods import map_location, map_end_location, map_dx_dy, map_outcome
 
 
 # ## -------------- ## #
 # ## Advanced Plots ## #
 # ## -------------- ## #
-from utils.dataframe_mods import map_location, map_end_location, map_dx_dy, map_outcome
-
 
 def create_arrow_map(events: pd.DataFrame, event_type: str = "Pass", match: str = "an unknown match", fig=None, ax=None,
                      pitch_length: int = 120, pitch_width: int = 80, color: str = "blue"):
     """
     This functions creates a map of arrows between the start point and end point of an event.
-    :return: map of a pitch with event arrows
+    :param events: a data frame containing events
+    :param event_type: a string describing the event type for which to plot arrows
+    :param match: a string describing the match for which the events are plotted
+    :param fig: a figure
+    :param ax: a subplot of the figure on which to plot the arrows
+    :param pitch_length: a integer describing the length of the pitch
+    :param pitch_width: a integer describing the width of the pitch
+    :param color: a string describing the color of the arrows
+    :return fig, ax: a figure containing a pitch with event arrows
     """
 
     # Filter only relevant events
@@ -43,7 +50,7 @@ def create_arrow_map(events: pd.DataFrame, event_type: str = "Pass", match: str 
         x_start, y_start, x_end, y_end, dx, dy = list(event)
         pass_circle = plt.Circle((x_start, y_start), 2, color=color)
         pass_circle.set_alpha(0.2)
-        pass_arrow = plt.Arrow(x_start, y_start, dx, dy, width=3, color=color)
+        pass_arrow = plt.Arrow(x_start, y_start, dx, dy, width=3, color=color, in_layout=True)
         ax.add_patch(pass_circle)
         ax.add_patch(pass_arrow)
 
@@ -58,6 +65,16 @@ def create_arrow_map(events: pd.DataFrame, event_type: str = "Pass", match: str 
 
 def create_heat_map(events: pd.DataFrame, match: str = "an unknown match", fig=None, ax=None,
                     pitch_length: int = 120, pitch_width: int = 80):
+    """
+    This functions creates a heat map for one player
+    :param events: a data frame containing events from one player
+    :param match: a string describing the match for which the events are plotted
+    :param fig: a figure
+    :param ax: a subplot of the figure on which to plot the arrows
+    :param pitch_length: a integer describing the length of the pitch
+    :param pitch_width: a integer describing the width of the pitch
+    :return fig, ax: a figure showing a heat map
+    """
     # Draw pitch
     fig, ax = create_pitch(pitch_length, pitch_width, fig, ax)
 
@@ -76,6 +93,18 @@ def create_heat_map(events: pd.DataFrame, match: str = "an unknown match", fig=N
 
 def create_extended_regplot(data: pd.DataFrame, x: str = None, y: str = None, top_n: int = 2,
                             player_to_highlight: str = None, fig=None, ax=None):
+    """
+    This function creates an extended regression line plot for with a flexible x, and y axis and containing all players
+    in the data frame.
+    :param data: a data frame containing events
+    :param x: a string describing the column name to use as x-axis
+    :param y: a string describing the column name to use as y-axis
+    :param top_n: an integer describing the number of top players to highlight in red
+    :param player_to_highlight: a string describing the player to highlight with a golden star
+    :param fig: a fig
+    :param ax: a subplot in the figure
+    :return ax, fig: a figure containing an extended regression plot
+    """
     if x is None or y is None:
         print("Please provide what to plot: x-axis and y-axis")
         return
@@ -108,6 +137,16 @@ def create_extended_regplot(data: pd.DataFrame, x: str = None, y: str = None, to
 
 
 def create_event_map(data: pd.DataFrame, fig=None, ax=None, pitch_length: int = 120, pitch_width: int = 80):
+    """
+    This function creates an event map in which the different events are represented as different markers in different
+    colors.
+    :param data: a data frame containing events
+    :param fig: a figure
+    :param ax: a subplot in figure
+    :param pitch_length: an integer describing the length of the pitch
+    :param pitch_width: an integer describing the width of the pitch
+    :return fig, ax: a figure containing different events
+    """
     # Draw pitch
     fig, ax = create_pitch(pitch_length, pitch_width, fig, ax)
 
@@ -195,3 +234,34 @@ def create_radar_chart(data: pd.DataFrame, ax=None, color: str = 'blue'):
     ax.set_rscale('log')
 
     return ax
+
+
+if __name__ == "__main__":
+    pitch_length = 120
+    pitch_width = 80
+
+    # ## Create test events
+    # Start with empty DataFrames
+    pass_events = pd.DataFrame()
+    carry_events = pd.DataFrame()
+
+    # Generate random start and end locations
+    start_locations = pd.DataFrame(np.random.random(size=(50, 2)), columns=["1", "2"]) * pitch_length
+    end_locations = pd.DataFrame(np.random.random(size=(50, 2)), columns=["1", "2"]) * pitch_width
+
+    # Merge start and end locations into lists [x_start, y_start] [x_end, y_end]
+    pass_events["location"] = start_locations.values.tolist()
+    pass_events["pass_end_location"] = end_locations.values.tolist()
+    pass_events["type_name"] = "Pass"
+    pass_events["player_name"] = "Ruud Gullit"
+
+    carry_events = pass_events.rename(columns={"pass_end_location": "carry_end_location"})
+    carry_events["type_name"] = "Carry"
+
+    # Test pass map
+    fig, ax = create_arrow_map(events=pass_events, event_type="Pass", color="blue")
+    plt.show()
+
+    # Test carry map
+    create_arrow_map(events=carry_events, event_type="Carry", color="green")
+    plt.show()

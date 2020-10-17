@@ -2,9 +2,6 @@
 # ## Imports ## #
 # ## ------- ## #
 
-import numpy as np
-import pandas as pd
-from matplotlib import pyplot as plt
 import matplotlib.pyplot as plt
 from matplotlib.patches import Arc
 
@@ -17,7 +14,11 @@ def create_pitch(length: int = 120, width: int = 80, fig=None, ax=None):
     """
     This script is copied from https://fcpython.com/visualisation/drawing-pitchmap-adding-lines-circles-matplotlib
     This function plots a football pitch with the possibility to input the dimensions.
-    :return: plot of a football pitch with provided or default dimensions
+    :param length: an integer describing the length of the pitch
+    :param width: an integer describing the width of the pitch
+    :param fig: a figure as template for the
+    :param ax: a subplot of the figure on which to plot the pitch
+    :return fig, ax: plot of a football pitch
     """
 
     # Create figure if needed
@@ -81,35 +82,14 @@ def create_pitch(length: int = 120, width: int = 80, fig=None, ax=None):
 
 
 if __name__ == "__main__":
-    pitch_length = 120
-    pitch_width = 80
+    # Figure
+    fig = plt.figure()
 
-    # ## Create test events
-    # Start with empty DataFrames
-    pass_events = pd.DataFrame()
-    carry_events = pd.DataFrame()
+    # Subplot 1 with standard dimensions
+    ax1 = plt.subplot(1, 2, 1)
+    create_pitch(fig=fig, ax=ax1)
 
-    # Generate random start and end locations
-    start_locations = pd.DataFrame(np.random.randint(0, 100, size=(50, 2)), columns=["1", "2"])
-    end_locations = pd.DataFrame(np.random.randint(0, 100, size=(50, 2)), columns=["1", "2"])
-    start_locations["1"] = start_locations["1"] * pitch_length
-    start_locations["2"] = start_locations["2"] * pitch_width
-    end_locations["1"] = start_locations["1"] * pitch_length
-    end_locations["2"] = start_locations["2"] * pitch_width
+    # Subplot 2 with custom dimensions
+    ax2 = plt.subplot(1, 2, 2)
+    create_pitch(length=90, width=50, fig=fig, ax=ax2)
 
-    # Merge start and end locations into lists [x_start, y_start] [x_end, y_end]
-    pass_events["location"] = start_locations.values.tolist()
-    pass_events["pass_end_location"] = end_locations.values.tolist()
-    pass_events["type_name"] = "Pass"
-    pass_events["player_name"] = "Dr. Gino"
-
-    carry_events = pass_events.rename(columns={"pass_end_location": "carry_end_location"})
-    carry_events["type_name"] = "Carry"
-
-    # Test pass map
-    create_pass_map(events=pass_events)
-    plt.show()
-
-    # Test carry map
-    create_carry_map(events=carry_events)
-    plt.show()
