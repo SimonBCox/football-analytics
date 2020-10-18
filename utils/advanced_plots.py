@@ -78,7 +78,7 @@ def create_heat_map(events: pd.DataFrame, match: str = "an unknown match", fig=N
     # Draw pitch
     fig, ax = create_pitch(pitch_length, pitch_width, fig, ax)
 
-    # Filter locations and draw heatmap
+    # Filter locations and draw heat map
     location = pd.DataFrame(events.loc[~pd.isnull(events.location)].location.to_list(), columns=['start', 'end'])
     sns.kdeplot(location.start, location.end, shade=True, n_levels=10, color="green")
 
@@ -209,7 +209,14 @@ def create_event_map(data: pd.DataFrame, fig=None, ax=None, pitch_length: int = 
 
 
 def create_radar_chart(data: pd.DataFrame, ax=None, color: str = 'blue'):
-    # Based on script by FC PYTHON, source: "https://fcpython.com/visualisation/radar-charts-matplotlib"
+    """
+    This function is based on script by FC PYTHON, source: "https://fcpython.com/visualisation/radar-charts-matplotlib"
+    This function creates a radar chart
+    :param data: a data frame containing event data
+    :param ax: a subplot of a figure
+    :param color: a string describing the color of the radar chart
+    :return ax: a radar chart
+    """
 
     # Get attributes, data, and angles
     attributes = sorted(data.type_name.unique())
